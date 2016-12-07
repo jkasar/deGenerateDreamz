@@ -1,5 +1,7 @@
 
+
 THREE.FirstPersonControls = function ( object, domElement ) {
+
 
 
 	this.object = object;
@@ -51,6 +53,14 @@ THREE.FirstPersonControls = function ( object, domElement ) {
 		this.domElement.setAttribute( 'tabindex', -1 );
 
 	}
+
+
+	 var hasGP = false;
+        var repGP;
+
+        function canGame() {
+            return "getGamepads" in navigator;
+        }
 
 	//
 
@@ -116,6 +126,8 @@ THREE.FirstPersonControls = function ( object, domElement ) {
 
 	};
 
+
+
 	this.onMouseMove = function ( event ) {
 
 		if ( this.domElement === document ) {
@@ -158,6 +170,7 @@ THREE.FirstPersonControls = function ( object, domElement ) {
 		}
 
 	};
+
 
 	this.onKeyUp = function ( event ) {
 
@@ -265,6 +278,9 @@ THREE.FirstPersonControls = function ( object, domElement ) {
 	window.addEventListener( 'keydown', bind( this, this.onKeyDown ), false );
 	window.addEventListener( 'keyup', bind( this, this.onKeyUp ), false );
 
+
+
+
 	function bind( scope, fn ) {
 
 		return function () {
@@ -275,8 +291,8 @@ THREE.FirstPersonControls = function ( object, domElement ) {
 
 	};
 
-	
-
 	this.handleResize();
+
+
 
 };

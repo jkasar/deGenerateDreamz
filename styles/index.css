@@ -1,5 +1,5 @@
-::-moz-selection { background: #39f; }
-::selection { background: #39f; }
+/*::-moz-selection { background: #39f; }
+::selection { background: #39f; }*/
 html, body {
   border:none;
   font-size: 1em;
@@ -19,6 +19,7 @@ canvas {
   display: block;
   margin: 0 auto;
   user-select: none;
+  background: black;
 }
 h2 {
 border:none;

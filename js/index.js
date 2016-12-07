@@ -18,6 +18,11 @@ if ( window.innerWidth === 0 ) {
   window.innerHeight = parent.innerHeight;
 }
 
+var camera, scene, renderer;
+      var composer;
+      var cube;
+      var shaderTime = 0;
+
 var camera, scene, renderer, clock, player, terrainScene, decoScene, lastOptions, controls = {}, fpsCamera, skyDome, skyLight, sand, water; // jscs:ignore requireLineBreakAfterVariableAssignment
 var INV_MAX_FPS = 1 / 100,
     frameDelta = 0,
@@ -25,7 +30,10 @@ var INV_MAX_FPS = 1 / 100,
     mouseX = 0,
     mouseY = 0,
     useFPS = false;
-
+var composer;
+      var cube;
+      var shaderTime = 0;
+      var testParams, testPass; 
 function animate() {
   stats.begin();
   draw();
@@ -47,9 +55,16 @@ function startAnimating() {
     paused = false;
     controls.freeze = false;
     clock.start();
+
     requestAnimationFrame(animate);
+    cube.rotation.y -= 0.01;
+        cube.rotation.x += 0.005;
+        composer.render( 0.1);
+        stats.update();
   }
 }
+
+
 
 function stopAnimating() {
   paused = true;
@@ -67,8 +82,9 @@ function setup() {
 }
 
 function setupThreeJS() {
+
   scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x868293, 0.0007);
+  scene.fog = new THREE.FogExp2(0xFFFFFF, 0.0007);
 
   renderer = webglExists ? new THREE.WebGLRenderer({ antialias: true }) : new THREE.CanvasRenderer();
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -91,17 +107,103 @@ function setupControls() {
   fpsCamera = new THREE.PerspectiveCamera(60, renderer.domElement.width / renderer.domElement.height, 1, 10000);
   scene.add(fpsCamera);
   controls = new THREE.FirstPersonControls(fpsCamera, renderer.domElement);
-  controls.freeze = true;
-  controls.movementSpeed = 100;
-  controls.lookSpeed = 0.075;
+  var hasGP = false;
+  var repGP;
+
+  function canGame() {
+    return "getGamepads" in navigator;
+  }
+  if(canGame()) {
+
+    
+
+    $(window).on("gamepadconnected", function() {
+    hasGP = true;
+    $("#gamePadInfo").html("Gamepad connected!");
+    repGP = window.setInterval(checkGamepad,100);
+    });
+
+    $(window).on("gamepaddisconnected", function() {
+    
+    window.clearInterval(repGP);
+    });
+
+    //setup an interval for Chrome
+    var checkGP = window.setInterval(function() {
+    if(navigator.getGamepads()[0]) {
+      if(!hasGP) $(window).trigger("gamepadconnected");
+      window.clearInterval(checkGP);
+    }
+  }, 500);
+
+  function checkGamepad() {
+    var gp = navigator.getGamepads()[0];
+    var axeLF = gp.axes[0];
+
+    var butLeft = gp.buttons[15];
+    var butRight = gp.buttons[16];
+
+    if (gp.buttons[6].pressed) {
+      controls.moveUp = true;
+      controls.moveDown = false;
+    } else if (gp.buttons[7].pressed){
+      controls.moveUp = false;
+      controls.moveDown = true;
+    } else {
+      controls.moveUp = false;
+      controls.moveDown = false;
+
+    }
+
+    if (gp.buttons[2].pressed) {
+      controls.freeze = ! controls.freeze;
+    }
+
+    if (gp.buttons[13].pressed) {
+      controls.moveForward = true;
+      controls.moveBackward = false;
+
+    } else if (gp.buttons[12].pressed) {
+      controls.moveForward = false;
+      controls.moveBackward = true;
+
+    } else {
+      controls.moveForward = false;
+      controls.moveBackward = false;
+
+    }
+
+  if(axeLF < -0.5) {
+    controls.moveLeft = true;
+    controls.moveRight = false;
+  } else if(axeLF > 0.5) {
+    controls.moveLeft = false;
+    controls.moveRight = true;
+  } else {
+    controls.moveLeft = false;
+    controls.moveRight = false;
+  } 
+  }
+}
+
+controls.freeze = true;
+controls.movementSpeed = 100;
+controls.lookSpeed = 0.075;
 }
 
 function setupWorld() {
-  THREE.ImageUtils.loadTexture('https://raw.githubusercontent.com/IceCreamYou/THREE.Terrain/gh-pages/demo/img/favicon.png, https://raw.githubusercontent.com/IceCreamYou/THREE.Terrain/gh-pages/demo/img/favicon.png', undefined, function(t1) {
+
+
+  var imgTexture = THREE.ImageUtils.loadTexture( "images/cool.tiff" );
+        var imgMaterial = new THREE.MeshBasicMaterial( { 
+          map : imgTexture
+        } );
+
+  THREE.ImageUtils.loadTexture('demo/img/sky1.jpg', undefined, function(t1) {
     t1.minFilter = THREE.LinearFilter; // Texture is not a power-of-two size; use smoother interpolation.
     skyDome = new THREE.Mesh(
       new THREE.SphereGeometry(8192, 16, 16, 0, Math.PI*2, 0, Math.PI*0.5),
-      new THREE.MeshBasicMaterial({map: t1, side: THREE.BackSide, fog: false})
+      new THREE.MeshBasicMaterial({color: 0xffffff})
     );
     skyDome.position.y = -99;
     scene.add(skyDome);
@@ -109,32 +211,45 @@ function setupWorld() {
 
   water = new THREE.Mesh(
     new THREE.PlaneBufferGeometry(16384+1024, 16384+1024, 16, 16),
-    new THREE.MeshLambertMaterial({color: 0x006ba0, transparent: true, opacity: 0.6})
+    new THREE.MeshLambertMaterial({color: 0x000000, transparent: true, opacity: 0.6})
   );
   water.position.y = -99;
   water.rotation.x = -0.5 * Math.PI;
   scene.add(water);
 
   skyLight = new THREE.DirectionalLight(0xe8bdb0, 1.5);
+
   skyLight.position.set(2950, 2625, -160); // Sun on the sky texture
   scene.add(skyLight);
   var light = new THREE.DirectionalLight(0xc3eaff, 0.75);
   light.position.set(-1, -0.5, -1);
   scene.add(light);
+  coolLight = new THREE.DirectionalLight.(var time = Date.now() * 0.0005;
+        h = ( 360 * ( 1.0 + time ) % 360 ) / 360;
+        color.setHSL(h, 0.5, 0.5 ), ;
+ 
+ 
+
+  var geometry = new THREE.CubeGeometry(1000, 1000, 1000);
+  // var cube = new THREE.MeshPhongMaterial({ color: 0xFFFFFF, specular: 0x444455, shininess: 10 });
+  scene.add(cube)
 }
+
+var time = Date.now() * 0.0005;
+        h = ( 360 * ( 1.0 + time ) % 360 ) / 360; 
 
 function setupDatGui() {
   var heightmapImage = new Image();
-  heightmapImage.src = 'images/heightmap.png';
+  heightmapImage.src = 'demo/img/heightmap.png';
   function Settings() {
     var that = this;
     var mat = new THREE.MeshBasicMaterial({color: 0x5566aa, wireframe: true});
-    var gray = new THREE.MeshPhongMaterial({ color: 0x88aaaa, specular: 0x444455, shininess: 10 });
+    var gray = new THREE.MeshPhongMaterial({ color: 0x002200, specular: 0x444455, shininess: 10 });
     var blend;
     var elevationGraph = document.getElementById('elevation-graph'),
         slopeGraph = document.getElementById('slope-graph'),
         analyticsValues = document.getElementsByClassName('value');
-    THREE.ImageUtils.loadTexture('images/sand1.jpg', undefined, function(t1) {
+    THREE.ImageUtils.loadTexture('demo/img/sand1.jpg', undefined, function(t1) {
       t1.wrapS = t1.wrapT = THREE.RepeatWrapping;
       sand = new THREE.Mesh(
         new THREE.PlaneBufferGeometry(16384+1024, 16384+1024, 64, 64),
@@ -143,11 +258,11 @@ function setupDatGui() {
       sand.position.y = -101;
       sand.rotation.x = -0.5 * Math.PI;
       scene.add(sand);
-      THREE.ImageUtils.loadTexture('images/grass1.jpg', undefined, function(t2) {
+      THREE.ImageUtils.loadTexture('demo/img/grass1.jpg', undefined, function(t2) {
         t2.wrapS = t2.wrapT = THREE.RepeatWrapping;
-        THREE.ImageUtils.loadTexture('images/stone1.jpg', undefined, function(t3) {
+        THREE.ImageUtils.loadTexture('demo/img/stone1.jpg', undefined, function(t3) {
           t3.wrapS = t3.wrapT = THREE.RepeatWrapping;
-          THREE.ImageUtils.loadTexture('images/snow1.jpg', undefined, function(t4) {
+          THREE.ImageUtils.loadTexture('demo/img/snow1.jpg', undefined, function(t4) {
             t4.wrapS = t4.wrapT = THREE.RepeatWrapping;
             // t2.repeat.x = t2.repeat.y = 2;
             blend = THREE.Terrain.generateBlendedMaterial([
@@ -167,11 +282,17 @@ function setupDatGui() {
     this.smoothing = 'None';
     this.maxHeight = 200;
     this.segments = webglExists ? 63 : 31;
-    this.steps = 1;
+    this.steps = 4;
     this.turbulent = false;
     this.size = 1024;
+    var mesh, group1, group2, group3, light;
+    // light = new THREE.DirectionalLight( 0xffeba2 );
+    //     light.position.set( 0, 0, 1 );
+    //     scene.add( light );
+    var time = Date.now() * 0.0005;
+        h = ( 360 * ( 1.0 + time ) % 360 ) / 360;
     this.sky = true;
-    this.texture = webglExists ? 'Blended' : 'Wireframe';
+    this.texture = webglExists ? 'gray' : 'Wireframe';
     this.edgeDirection = 'Normal';
     this.edgeType = 'Box';
     this.edgeDistance = 256;
@@ -316,7 +437,31 @@ function setupDatGui() {
       }
     };
   }
+
+
+shaderParams = {
+          bleach:false,
+          bloom:false,
+          brightnessContrast:false,
+          colorCorrection:false,
+          colorify:false, 
+          dotScreen: false,       
+          film:false,
+          focus:false,          
+          horizontalBlur:false,         
+          hueSaturation:false,          
+          kaleido:false,          
+          luminosity:false,         
+          mirror:false,         
+          RGBShift:false,         
+          sepia:false,          
+          verticalBlur:false,         
+          vignette:false,         
+        }
+
+
   var gui = new dat.GUI();
+
   var settings = new Settings();
   var heightmapFolder = gui.addFolder('Heightmap');
   heightmapFolder.add(settings, 'heightmap', ['Brownian', 'Cosine', 'CosineLayers', 'DiamondSquare', 'Fault', 'heightmap.png', 'Hill', 'HillIsland', 'influences', 'Particles', 'Perlin', 'PerlinDiamond', 'PerlinLayers', 'Simplex', 'SimplexLayers', 'Value', 'Weierstrass', 'Worley']).onFinishChange(settings.Regenerate);
@@ -338,6 +483,8 @@ function setupDatGui() {
   decoFolder.add(settings, 'spread', 0, 100).step(1).onFinishChange(settings['Scatter meshes']);
   decoFolder.addColor(settings, 'Light color').onChange(function(val) {
     skyLight.color.set(val);
+
+
   });
   var sizeFolder = gui.addFolder('Size');
   sizeFolder.add(settings, 'size', 1024, 3072).step(256).onFinishChange(settings.Regenerate);
@@ -350,6 +497,7 @@ function setupDatGui() {
   edgesFolder.add(settings, 'edgeDistance', 0, 512).step(32).onFinishChange(settings.Regenerate);
   gui.add(settings, 'Flight mode').onChange(function(val) {
     useFPS = val;
+    useFPS = 1;
     fpsCamera.position.x = 449;
     fpsCamera.position.y = 311;
     fpsCamera.position.z = 376;
@@ -369,6 +517,7 @@ function setupDatGui() {
   });
   gui.add(settings, 'Scatter meshes');
   gui.add(settings, 'Regenerate');
+
 
   if (typeof window.Stats !== 'undefined' && /[?&]stats=1\b/g.test(location.search)) {
     stats = new Stats();
@@ -393,9 +542,15 @@ window.addEventListener('resize', function() {
   draw();
 }, false);
 
+
+
+
 function draw() {
+  
   renderer.render(scene, useFPS ? fpsCamera : camera);
 }
+
+
 
 function update(delta) {
   if (terrainScene) terrainScene.rotation.z = Date.now() * 0.00001;
@@ -408,6 +563,7 @@ document.addEventListener('mousemove', function(event) {
     mouseY = event.pageY;
   }
 }, false);
+
 
 // Stop animating if the window is out of focus
 function watchFocus() {
@@ -699,3 +855,4 @@ Number.prototype.round = function(v, a) {
   var m = Math.pow(10, a|0);
   return Math.round(v*m)/m;
 };
+

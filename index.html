@@ -4,7 +4,6 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width">
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
   <meta charset="utf-8">
   <title>Terrain</title>
   <meta name="description" content="A demo of the THREE.Terrain library.">
@@ -12,6 +11,7 @@
   <link rel="stylesheet" href="styles/index.css">
 </head>
 <body>
+  
   <canvas id="heightmap"></canvas>
   <div id="show-analytics" class="visible"></div>
   <div id="analytics" class="">
@@ -117,14 +117,16 @@
       <a href="#" class="close">Close</a>
     </div>
   </div>
-  <div id="fpscontrols">W = Forward, S = Back, A = Left, D = Right, R = Up, F = Down, Q = Freeze, Mouse = Look</div>
-
+  <div id="fpscontrols"><!-- W = Forward, S = Back, A = Left, D = Right, R = Up, F = Down, Q = Freeze, Mouse = Look --></div>
+  
+  <script src="js/jquery.min.js"></script>
   <script src="js/stats.min.js"></script>
   <script src="js/dat.gui.min.js"></script>
   <script src="js/three.min.js"></script>
   <script src="js/CanvasRenderer.js"></script>
   <script src="js/Projector.js"></script>
   <script src="js/FirstPersonControls.js"></script>
+  <script src="js/SecondPersonControls.js"></script>
   <script src="js/THREE.Terrain.min.js"></script>
   <script src="js/worley.js"></script>
   <script src="js/brownian.js"></script>
@@ -132,6 +134,33 @@
   <script src="js/weightedBoxBlurGaussian.js"></script>
   <script src="js/analysis.js"></script>
   <script src="js/index.js"></script>
-  <script>setup();</script>
+  <script src="js/shader.js"></script>
+
+  <script src="js/postprocessing/EffectComposer.js"></script>
+  <script src="js/postprocessing/RenderPass.js"></script>
+  <script src="js/postprocessing/ShaderPass.js"></script>
+  <script src="js/postprocessing/MaskPass.js"></script> 
+  <script src="js/postprocessing/BloomPass.js"></script> 
+  <script src="js/shaders/CopyShader.js"></script>
+  <script src="js/shaders/BleachBypassShader.js"></script>
+  <script src="js/shaders/ColorifyShader.js"></script>
+  <script src="js/shaders/DotScreenShader.js"></script>
+  <script src="js/shaders/BrightnessContrastShader.js"></script>
+  <script src="js/shaders/ColorCorrectionShader.js"></script>
+  <script src="js/shaders/ConvolutionShader.js"></script>
+  <script src="js/shaders/FilmShader.js"></script>
+  <script src="js/shaders/FocusShader.js"></script>
+  <script src="js/shaders/HorizontalBlurShader.js"></script>
+  <script src="js/shaders/HueSaturationShader.js"></script>
+  <script src="js/shaders/KaleidoShader.js"></script>
+  <script src="js/shaders/LuminosityShader.js"></script>
+  <script src="js/shaders/MirrorShader.js"></script>
+  <script src="js/shaders/RGBShiftShader.js"></script>
+  <script src="js/shaders/SepiaShader.js"></script>
+  <script src="js/shaders/VerticalBlurShader.js"></script>
+  <script src="js/shaders/VignetteShader.js"></script>
+  <script>
+  setup();
+  </script>
 </body>
 </html>
